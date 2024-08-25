@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Roll Number</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <h1>FastAPI and HTML Bajaj Api</h1>
+    <form id="data-form">
+        <textarea id="json-input" rows="10" cols="50" placeholder='{"data": ["A","C","Z","c","i"]}'></textarea>
+        <button type="submit">Submit</button>
+    </form>
+    <div id="response"></div>
+    <label for="filters">Select Filters:</label>
+    <select id="filters" multiple>
+        <option value="numbers">Numbers</option>
+        <option value="alphabets">Alphabets</option>
+        <option value="highest_lowercase_alphabet">Highest Lowercase Alphabet</option>
+    </select>
+    <script>
+        document.getElementById('data-form').onsubmit = async (event) => {
+            event.preventDefault();
+            const jsonInput = document.getElementById('json-input').value;
+            let data;
+            try {
+                data = JSON.parse(jsonInput);
+            } catch (error) {
+                document.getElementById('response').innerText = 'Invalid JSON format';
+                return;
+            }
+            const response = await fetch('/bfhl', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data),
+            });
+            const result = await response.json();
+            displayResult(result);
+        };
+
+        function displayResult(result) {
+            const filters = Array.from(document.getElementById('filters').selectedOptions).map(option => option.value);
+            let filteredResult = {};
+
+            if (filters.includes('numbers')) {
+                filteredResult.numbers = result.numbers;
+            }
+            if (filters.includes('alphabets')) {
+                filteredResult.alphabets = result.alphabets;
+            }
+            if (filters.includes('highest_lowercase_alphabet')) {
+                filteredResult.highest_lowercase_alphabet = result.highest_lowercase_alphabet;
+            }
+
+            document.getElementById('response').innerText = JSON.stringify(filteredResult, null, 2);
+        }
+    </script>
+</body>
+</html>
